@@ -26,9 +26,9 @@ operation = st.selectbox("Select an operation:", [
     "Convert Any File to PDF",
     "Extract Pages from PDF",
     "Merge PDFs",
-    "Split PDF",
+    "Split PDF 1 to 2 pdf's",
     "Compress PDF",
-    "Insert Page Numbers To PDF",
+    "Insert Page Numbers to pdf",
     "Organize PDF (Drag & Drop)"
 ])
 
@@ -75,7 +75,7 @@ if uploaded_files:
 
     # ✅ Insert Page Numbers (Fixed)
     if operation == "Insert Page Numbers":
-        st.markdown('<p class="subheader">🔢 Insert Page Numbers To PDF</p>', unsafe_allow_html=True)
+        st.markdown('<p class="subheader">🔢 Insert Page Numbers to pdf</p>', unsafe_allow_html=True)
 
         pdf_reader = PdfReader(uploaded_files[0])
         output_pdf = BytesIO()
