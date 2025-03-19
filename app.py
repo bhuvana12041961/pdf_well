@@ -33,6 +33,23 @@ operation = st.selectbox("Select an operation:", [
     "Compress PDF 📉",
     "Insert Page Numbers 📝 to PDF"
 ])
+# ✅ Check and clear uploaded files if operation changes
+if "previous_operation" in st.session_state:
+    if st.session_state.previous_operation != operation:
+        # Clear uploaded files when the operation changes
+        st.session_state.uploaded_files = []  # Clear uploaded files
+        st.experimental_rerun()  # Re-run the app to reflect the change in session state
+
+# Save the current operation to session state for comparison next time
+st.session_state.previous_operation = operation
+
+# --- File Upload ---
+uploaded_files = st.file_uploader("Upload file(s)", type=["pdf", "png", "jpg", "jpeg", "docx", "pptx", "txt"], accept_multiple_files=True)
+
+if uploaded_files:
+    st.success(f"✅ {len(uploaded_files)} file(s) uploaded!")
+    # Save the uploaded files to session state to maintain them across interactions
+    st.session_state.uploaded_files = uploaded_files
 # ✅ Generate Empty PDF
 if operation == "Generate Empty PDF 🖨️":
     st.subheader("📄 Generate an Empty PDF")
@@ -54,23 +71,6 @@ if operation == "Generate Empty PDF 🖨️":
         st.download_button("📥 Download Empty PDF", data=output_pdf, file_name="Empty_PDF.pdf", mime="application/pdf")
 
     st.stop()
-
-# ✅ Remove Uploaded Files if Operation Changes
-if "previous_operation" in st.session_state:
-    if st.session_state.previous_operation != operation:
-        st.session_state.uploaded_files = []  # Clear uploaded files if the operation changes
-
-# Save the current operation to session state for comparison next time
-st.session_state.previous_operation = operation
-
-# --- File Upload ---
-uploaded_files = st.file_uploader("Upload file(s)", type=["pdf", "png", "jpg", "jpeg", "docx", "pptx", "txt"], accept_multiple_files=True)
-
-if uploaded_files:
-    st.success(f"✅ {len(uploaded_files)} file(s) uploaded!")
-    # Save the uploaded files to session state to maintain them across interactions
-    st.session_state.uploaded_files = uploaded_files
-
     # ✅ Convert Any File to PDF
     if operation == "Convert Any File to PDF ♻️":
         st.subheader("🔄 Convert Any File to PDF")
