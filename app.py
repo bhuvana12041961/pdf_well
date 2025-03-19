@@ -33,6 +33,27 @@ operation = st.selectbox("Select an operation:", [
     "Compress PDF 📉",
     "Insert Page Numbers 📝 to PDF"
 ])
+# ✅ Generate Empty PDF
+if operation == "Generate Empty PDF 🖨️":
+    st.subheader("📄 Generate an Empty PDF")
+    num_pages = st.number_input("Enter number of pages:", min_value=1, max_value=100000, value=1, step=1)
+
+    if st.button("Generate an Empty PDF"):
+        output_pdf = BytesIO()
+        pdf_canvas = canvas.Canvas(output_pdf, pagesize=letter)
+        pdf_canvas.setFont("Helvetica", 12)
+
+        for i in range(num_pages):
+            pdf_canvas.drawString(100, 750, f"Page {i+1}")
+            pdf_canvas.showPage()
+
+        pdf_canvas.save()
+        output_pdf.seek(0)
+
+        st.success(f"✅ Empty PDF with {num_pages} pages generated!")
+        st.download_button("📥 Download Empty PDF", data=output_pdf, file_name="Empty_PDF.pdf", mime="application/pdf")
+
+    st.stop()
 
 # ✅ Remove Uploaded Files if Operation Changes
 if "previous_operation" in st.session_state:
