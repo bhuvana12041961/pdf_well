@@ -33,20 +33,14 @@ operation = st.selectbox("Select an operation:", [
     "Compress PDF 📉",
     "Insert Page Numbers 📝 to PDF"
 ])
-# --- Reset uploaded files if operation changes ---
-if "previous_operation" in st.session_state and st.session_state.previous_operation != operation:
-    st.session_state.uploaded_files = []  # Clear uploaded files if operation changes
 
-# Save the current operation to session state for comparison next time
-st.session_state.previous_operation = operation
-
-# --- File Upload ---
-uploaded_files = st.file_uploader("Upload file(s)", type=["pdf", "png", "jpg", "jpeg", "docx", "pptx", "txt"], accept_multiple_files=True)
-
-if uploaded_files:
-    st.success(f"✅ {len(uploaded_files)} file(s) uploaded!")
-    # Save the uploaded files to session state to maintain them across interactions
-    st.session_state.uploaded_files = uploaded_files
+# ✅ Add "Clear Uploaded Files" Button
+if "uploaded_files" in st.session_state:
+    if st.button("Remove Uploaded Files"):
+        # Clear the uploaded files
+        st.session_state.uploaded_files = []
+        st.success("✅ Uploaded files have been removed! Please choose a new operation to proceed.")
+        st.stop()  # Stop further execution and let users select a new operation
 # ✅ Generate Empty PDF
 if operation == "Generate Empty PDF 🖨️":
     st.subheader("📄 Generate an Empty PDF")
@@ -68,6 +62,13 @@ if operation == "Generate Empty PDF 🖨️":
         st.download_button("📥 Download Empty PDF", data=output_pdf, file_name="Empty_PDF.pdf", mime="application/pdf")
 
     st.stop()
+
+# ✅ File Upload
+uploaded_files = st.file_uploader("Upload file(s)", type=["pdf", "png", "jpg", "jpeg", "docx", "pptx", "txt"], accept_multiple_files=True)
+
+if uploaded_files:
+    st.success(f"✅ {len(uploaded_files)} file(s) uploaded!")
+
     # ✅ Convert Any File to PDF
     if operation == "Convert Any File to PDF ♻️":
         st.subheader("🔄 Convert Any File to PDF")
@@ -107,7 +108,7 @@ if operation == "Generate Empty PDF 🖨️":
 
             output_pdf.seek(0)
             st.download_button(f"📥 Download {file_name}.pdf", data=output_pdf, file_name=f"{file_name}.pdf", mime="application/pdf")
-
+            
     # ✅ Extract Pages from PDF
     elif operation == "Extract Pages from PDF 🪓":
         pdf_reader = PdfReader(uploaded_files[0])
@@ -125,7 +126,7 @@ if operation == "Generate Empty PDF 🖨️":
                 pdf_writer.write(output_pdf)
                 output_pdf.seek(0)
                 st.download_button("📄 Download Extracted PDF", data=output_pdf, file_name="Extracted_Pages.pdf", mime="application/pdf")
-
+                
     # ✅ Merge PDFs
     elif operation == "Merge PDFs 📄+📃":
         pdf_writer = PdfWriter()
@@ -201,7 +202,7 @@ if operation == "Generate Empty PDF 🖨️":
                     image = Image.open(img_file)
                     img_converted = image.convert("RGB")
                     pdf_images.append(img_converted)
-
+            
                 output_pdf = BytesIO()
                 pdf_images[0].save(output_pdf, save_all=True, append_images=pdf_images[1:], format="PDF")
                 output_pdf.seek(0)
@@ -210,6 +211,6 @@ if operation == "Generate Empty PDF 🖨️":
                 st.download_button("📥 Download Images PDF", data=output_pdf, file_name="Images_to_PDF.pdf", mime="application/pdf")
         else:
             st.warning("⚠️ Please upload image files (PNG, JPG, JPEG) to convert.")
-
+    
 # ✅ Footer
 st.markdown('<div class="footer">© Pavan sri sai mondem |Siva satyamsetti |Uma satya mounika sapireddy |Bhuvaneswari Devi Seru | Chandu meela | Techwing Trainees 🧡 </div>', unsafe_allow_html=True)
