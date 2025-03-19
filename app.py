@@ -33,12 +33,9 @@ operation = st.selectbox("Select an operation:", [
     "Compress PDF 📉",
     "Insert Page Numbers 📝 to PDF"
 ])
-# ✅ Check and clear uploaded files if operation changes
-if "previous_operation" in st.session_state:
-    if st.session_state.previous_operation != operation:
-        # Clear uploaded files when the operation changes
-        st.session_state.uploaded_files = []  # Clear uploaded files
-        st.experimental_rerun()  # Re-run the app to reflect the change in session state
+# --- Reset uploaded files if operation changes ---
+if "previous_operation" in st.session_state and st.session_state.previous_operation != operation:
+    st.session_state.uploaded_files = []  # Clear uploaded files if operation changes
 
 # Save the current operation to session state for comparison next time
 st.session_state.previous_operation = operation
