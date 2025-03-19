@@ -24,8 +24,9 @@ st.markdown('<p class="title">📄 PDF & File Converter</p>', unsafe_allow_html=
 
 # --- Select Operation ---
 operation = st.selectbox("Select an operation:", [
-    "Generate Empty PDF 🖨",
-    "Convert Any File to PDF ♻",
+    "Generate Empty PDF 🖨️",
+    "Convert Any File to PDF ♻️",
+    "Images to pdf 🏞️",
     "Extract Pages from PDF 🪓",
     "Merge PDFs 📄+📃",
     "Split PDF (1 to 2 📑 PDFs)",
@@ -33,36 +34,24 @@ operation = st.selectbox("Select an operation:", [
     "Insert Page Numbers 📝 to PDF"
 ])
 
-# ✅ Generate Empty PDF
-if operation == "Generate Empty PDF 🖨":
-    st.subheader("📄 Generate an Empty PDF")
-    num_pages = st.number_input("Enter number of pages:", min_value=1, max_value=10000, value=1, step=1)
+# ✅ Remove Uploaded Files if Operation Changes
+if "previous_operation" in st.session_state:
+    if st.session_state.previous_operation != operation:
+        st.session_state.uploaded_files = []  # Clear uploaded files if the operation changes
 
-    if st.button("Generate an Empty PDF"):
-        output_pdf = BytesIO()
-        pdf_canvas = canvas.Canvas(output_pdf, pagesize=letter)
-        pdf_canvas.setFont("Helvetica", 12)
+# Save the current operation to session state for comparison next time
+st.session_state.previous_operation = operation
 
-        for i in range(num_pages):
-            pdf_canvas.drawString(100, 750, f"Page {i+1}")
-            pdf_canvas.showPage()
-
-        pdf_canvas.save()
-        output_pdf.seek(0)
-
-        st.success(f"✅ Empty PDF with {num_pages} pages generated!")
-        st.download_button("📥 Download Empty PDF", data=output_pdf, file_name="Empty_PDF.pdf", mime="application/pdf")
-
-    st.stop()
-
-# ✅ File Upload
+# --- File Upload ---
 uploaded_files = st.file_uploader("Upload file(s)", type=["pdf", "png", "jpg", "jpeg", "docx", "pptx", "txt"], accept_multiple_files=True)
 
 if uploaded_files:
     st.success(f"✅ {len(uploaded_files)} file(s) uploaded!")
+    # Save the uploaded files to session state to maintain them across interactions
+    st.session_state.uploaded_files = uploaded_files
 
     # ✅ Convert Any File to PDF
-    if operation == "Convert Any File to PDF ♻":
+    if operation == "Convert Any File to PDF ♻️":
         st.subheader("🔄 Convert Any File to PDF")
         for uploaded_file in uploaded_files:
             file_name = uploaded_file.name.split(".")[0]
@@ -162,8 +151,6 @@ if uploaded_files:
         st.download_button("📥 Download Compressed PDF", data=output_pdf, file_name="Compressed_PDF.pdf", mime="application/pdf")
 
     # ✅ Insert Page Numbers
-    
-    # ✅ Insert Page Numbers
     elif operation == "Insert Page Numbers 📝 to PDF":
         pdf_reader = PdfReader(uploaded_files[0])
         pdf_writer = PdfWriter()
@@ -183,6 +170,28 @@ if uploaded_files:
         pdf_writer.write(output_pdf)
         output_pdf.seek(0)
         st.download_button("📄 Download Numbered PDF", data=output_pdf, file_name="Numbered_PDF.pdf", mime="application/pdf")
+
+    # ✅ Images to PDF (Multiple images to single PDF)
+    elif operation == "Images to pdf 🏞️":
+        st.subheader("🏞️ Convert Multiple Images to Single PDF")
+        image_files = [file for file in uploaded_files if file.type.startswith("image/")]
+
+        if image_files:
+            if st.button("Convert Images to PDF"):
+                pdf_images = []
+                for img_file in image_files:
+                    image = Image.open(img_file)
+                    img_converted = image.convert("RGB")
+                    pdf_images.append(img_converted)
+
+                output_pdf = BytesIO()
+                pdf_images[0].save(output_pdf, save_all=True, append_images=pdf_images[1:], format="PDF")
+                output_pdf.seek(0)
+
+                st.success("✅ Images successfully converted to a single PDF!")
+                st.download_button("📥 Download Images PDF", data=output_pdf, file_name="Images_to_PDF.pdf", mime="application/pdf")
+        else:
+            st.warning("⚠️ Please upload image files (PNG, JPG, JPEG) to convert.")
 
 # ✅ Footer
 st.markdown('<div class="footer">© Pavan sri sai mondem |Siva satyamsetti |Uma satya mounika sapireddy |Bhuvaneswari Devi Seru | Chandu meela | Techwing Trainees 🧡 </div>', unsafe_allow_html=True)
